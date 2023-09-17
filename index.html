@@ -10,6 +10,8 @@
         // Called with the results from FB.getLoginStatus().
         console.log("statusChangeCallback");
         console.log(response); // The current login status of the person.
+        const tokenComponent = document.getElementById("facebook-access-token");
+        tokenComponent.innerHTML = response?.authResponse?.accessToken;
         if (response.status === "connected") {
           // Logged into your webpage and Facebook.
           testAPI();
@@ -59,7 +61,8 @@
     </fb:login-button>
 
     <div id="status"></div>
-
+    <h3 style="margin-bottom: 40px;">Access token</h3>
+    <pre id="facebook-access-token"></pre>
     <!-- Load the JS SDK asynchronously -->
     <script
       async
