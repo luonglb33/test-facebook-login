@@ -3,22 +3,95 @@
   <head>
     <title>Facebook Login JavaScript Example</title>
     <meta charset="UTF-8" />
+    <style>
+      /* The snackbar - position it at the bottom and in the middle of the screen */
+      #snackbar {
+        visibility: hidden; /* Hidden by default. Visible on click */
+        min-width: 250px; /* Set a default minimum width */
+        margin-left: -125px; /* Divide value of min-width by 2 */
+        background-color: #333; /* Black background color */
+        color: #fff; /* White text color */
+        text-align: center; /* Centered text */
+        border-radius: 2px; /* Rounded borders */
+        padding: 16px; /* Padding */
+        position: fixed; /* Sit on top of the screen */
+        z-index: 1; /* Add a z-index if needed */
+        left: 50%; /* Center the snackbar */
+        bottom: 30px; /* 30px from the bottom */
+      }
+
+      /* Show the snackbar when clicking on a button (class added with JavaScript) */
+      #snackbar.show {
+        visibility: visible; /* Show the snackbar */
+        /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+        However, delay the fade out process for 2.5 seconds */
+        -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        animation: fadein 0.5s, fadeout 0.5s 2.5s;
+      }
+
+      /* Animations to fade the snackbar in and out */
+      @-webkit-keyframes fadein {
+        from {
+          bottom: 0;
+          opacity: 0;
+        }
+        to {
+          bottom: 30px;
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadein {
+        from {
+          bottom: 0;
+          opacity: 0;
+        }
+        to {
+          bottom: 30px;
+          opacity: 1;
+        }
+      }
+
+      @-webkit-keyframes fadeout {
+        from {
+          bottom: 30px;
+          opacity: 1;
+        }
+        to {
+          bottom: 0;
+          opacity: 0;
+        }
+      }
+
+      @keyframes fadeout {
+        from {
+          bottom: 30px;
+          opacity: 1;
+        }
+        to {
+          bottom: 0;
+          opacity: 0;
+        }
+      }
+    </style>
   </head>
   <body>
     <script>
+      let accessToken = '';
       function statusChangeCallback(response) {
         // Called with the results from FB.getLoginStatus().
-        console.log("statusChangeCallback");
+        console.log('statusChangeCallback');
         console.log(response); // The current login status of the person.
-        const tokenComponent = document.getElementById("facebook-access-token");
-        tokenComponent.innerHTML = response?.authResponse?.accessToken;
-        if (response.status === "connected") {
+        const tokenComponent = document.getElementById('facebook-access-token');
+        accessToken = response?.authResponse?.accessToken;
+        tokenComponent.innerHTML = accessToken;
+        if (response.status === 'connected') {
           // Logged into your webpage and Facebook.
           testAPI();
         } else {
           // Not logged into your webpage or we are unable to tell.
-          document.getElementById("status").innerHTML =
-            "Please log " + "into this webpage.";
+          document.getElementById('status').innerHTML =
+            'Please log ' + 'into this webpage.';
         }
       }
 
@@ -32,10 +105,10 @@
 
       window.fbAsyncInit = function () {
         FB.init({
-          appId: "989138728964650",
+          appId: '989138728964650',
           cookie: true, // Enable cookies to allow the server to access the session.
           xfbml: true, // Parse social plugins on this webpage.
-          version: "v17.0", // Use this Graph API version for this call.
+          version: 'v17.0', // Use this Graph API version for this call.
         });
 
         FB.getLoginStatus(function (response) {
@@ -46,12 +119,30 @@
 
       function testAPI() {
         // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
-        console.log("Welcome!  Fetching your information.... ");
-        FB.api("/me", function (response) {
-          console.log("Successful login for: " + response.name);
-          document.getElementById("status").innerHTML =
-            "Thanks for logging in, " + response.name + "!";
+        console.log('Welcome!  Fetching your information.... ');
+        FB.api('/me', function (response) {
+          console.log('Successful login for: ' + response.name);
+          document.getElementById('status').innerHTML =
+            'Thanks for logging in, ' + response.name + '!';
         });
+      }
+
+      function copyAccessToken() {
+        navigator.clipboard.writeText(accessToken);
+        showSnackbar();
+      }
+
+      function showSnackbar() {
+        // Get the snackbar DIV
+        var snackbar = document.getElementById('snackbar');
+
+        // Add the "show" class to DIV
+        snackbar.className = 'show';
+
+        // After 3 seconds, remove the show class from DIV
+        setTimeout(function () {
+          snackbar.className = snackbar.className.replace('show', '');
+        }, 3000);
       }
     </script>
 
@@ -61,8 +152,34 @@
     </fb:login-button>
 
     <div id="status"></div>
-    <h3 style="margin-bottom: 40px;">Access token</h3>
-    <pre id="facebook-access-token" style=" background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #f36d33; color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; line-height: 1.6; margin-bottom: 1.6em; max-width: 100%; overflow: auto; padding: 1em 1.5em; display: block; word-wrap: break-word;"></pre>
+    <h3 style="margin-bottom: 40px">Access token</h3>
+    <div>
+      <button style="margin-bottom: 40px" onclick="copyAccessToken()">
+        Coppy access token
+      </button>
+      <div id="snackbar">Access Token copied</div>
+
+      <pre
+        id="facebook-access-token"
+        style="
+          background: #f4f4f4;
+          border: 1px solid #ddd;
+          border-left: 3px solid #f36d33;
+          color: #666;
+          page-break-inside: avoid;
+          font-family: monospace;
+          font-size: 15px;
+          line-height: 1.6;
+          margin-bottom: 1.6em;
+          max-width: 100%;
+          overflow: auto;
+          padding: 1em 1.5em;
+          display: block;
+          word-wrap: break-word;
+        "
+      ></pre>
+    </div>
+
     <!-- Load the JS SDK asynchronously -->
     <script
       async
